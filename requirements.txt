@@ -1,6 +1,6 @@
-Django==5.1.2
-powerline-status==2.7
-PyMySQL==1.1.1
-pytz==2024.2
-sqlparse==0.5.1
-cryptography=43.0.3
+Django
+powerline-status
+PyMySQL
+pytz
+sqlparse
+cryptography
