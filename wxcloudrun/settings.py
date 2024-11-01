@@ -68,7 +68,7 @@ WSGI_APPLICATION = 'wxcloudrun.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get("MYSQL_DATABASE", 'django_demo'),
+        'NAME': os.environ.get("MYSQL_DATABASE", 'SCUT-InfoHub'),
         'USER': os.environ.get("MYSQL_USERNAME"),
         'HOST': os.environ.get("MYSQL_ADDRESS").split(':')[0],
         'PORT': os.environ.get("MYSQL_ADDRESS").split(':')[1],
