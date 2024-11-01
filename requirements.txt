@@ -3,4 +3,3 @@ powerline-status
 PyMySQL
 pytz
 sqlparse
-cryptography
