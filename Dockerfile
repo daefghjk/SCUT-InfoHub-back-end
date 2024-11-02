@@ -22,7 +22,8 @@ WORKDIR /app
 
 # 安装依赖到指定的/install文件夹
 # 选用国内镜像源以提高下载速度
-RUN python -m venv /app/venv 
+RUN python -m venv /app/venv
+RUN . /app/venv/bin/activate
 ENV PATH="/app/venv/bin:$PATH"
 RUN pip config set global.index-url http://mirrors.cloud.tencent.com/pypi/simple
 RUN pip config set global.trusted-host mirrors.cloud.tencent.com
