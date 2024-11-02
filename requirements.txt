@@ -1,5 +1,6 @@
-Django
+django
 powerline-status
-PyMySQL
+pymysql
 pytz
 sqlparse
+cryptography
