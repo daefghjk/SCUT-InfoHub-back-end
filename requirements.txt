@@ -2,5 +2,8 @@ django
 powerline-status
 pymysql
 pytz
+tzdata
 sqlparse
 cryptography
+djangorestframework
+djangorestframework-simplejwt
