@@ -197,3 +197,6 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
 }
+
+WeChat_Appid = os.environ.get("WeChat_Appid")
+WeChat_Appsecret = os.environ.get("WeChat_Appsecret")

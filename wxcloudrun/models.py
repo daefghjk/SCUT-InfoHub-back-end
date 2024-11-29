@@ -1,10 +1,11 @@
 from django.db import models
 
 class User(models.Model):
-    uid = models.IntegerField(primary_key=True)
-    name = models.CharField(max_length=10)
-    grade = models.CharField(max_length=10)
-    major = models.CharField(max_length=10)
+    openid = models.CharField(primary_key=True, max_length=50)
+    session_key = models.CharField(max_length=50)
+    name = models.CharField(max_length=50)
+    grade = models.CharField(max_length=50)
+    major = models.CharField(max_length=50)
 
     class Meta:
         db_table = 'user'
@@ -13,6 +14,7 @@ class User(models.Model):
         return self.name
 
 class Post(models.Model):
+    post_id = models.IntegerField(primary_key=True)
     title = models.CharField(max_length=200)
     content = models.TextField()
     poster = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts', null=False, blank=False)
@@ -25,6 +27,7 @@ class Post(models.Model):
         return self.title
 
 class Comment(models.Model):
+    comment_id = models.IntegerField(primary_key=True)
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments', null=False, blank=False)
     content = models.TextField()
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments', null=False, blank=False)
@@ -34,4 +37,4 @@ class Comment(models.Model):
         db_table = 'comments'
 
     def __str__(self):
-        return f'Comment by uid:{self.author_id} on post_id:{self.post_id}'
+        return f'Comment by openid:{self.author.openid} on post_id:{self.post.post_id}'
