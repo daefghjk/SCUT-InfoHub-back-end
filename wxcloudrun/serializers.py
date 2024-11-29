@@ -4,14 +4,14 @@ from .models import Post, Comment, User
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['uid', 'name', 'grade', 'major']
+        fields = ['openid', 'session_key', 'name', 'grade', 'major']
 
 class PostSerializer(serializers.ModelSerializer):
     poster = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
 
     class Meta:
         model = Post
-        fields = ['id', 'title', 'content', 'poster', 'create_time']
+        fields = ['post_id', 'title', 'content', 'poster', 'create_time']
 
 class CommentSerializer(serializers.ModelSerializer):
     post = serializers.PrimaryKeyRelatedField(queryset=Post.objects.all())
@@ -19,4 +19,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ['id', 'post', 'content', 'author', 'create_time']
+        fields = ['comment_id', 'post', 'content', 'author', 'create_time']
+
+class LoginSerializer(serializers.ModelSerializer):
+    code = serializers.CharField(allow_blank=False)

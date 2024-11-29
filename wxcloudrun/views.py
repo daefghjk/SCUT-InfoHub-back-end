@@ -1,6 +1,8 @@
-from rest_framework import generics, permissions
+from rest_framework import generics, status
+from rest_framework.views import APIView
+from rest_framework.response import Response
 from .models import Post, Comment, User
-from .serializers import PostSerializer, CommentSerializer, UserSerializer
+from .serializers import PostSerializer, CommentSerializer, UserSerializer, LoginSerializer
 
 class UserListCreateView(generics.ListCreateAPIView):
     queryset = User.objects.all()
@@ -34,3 +36,29 @@ class CommentListCreateView(generics.ListCreateAPIView):
 class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
+
+class LoginView(APIView):
+    def post(self, request, *args, **kwargs):
+        serializer = LoginSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        code = serializer.validated_data['code']
+        appid = 'wx63e3c1951a272c10'
+        appsecret = '9dda7f80ad3bf406a73016575784c001'
+        url = 'https://api.weixin.qq.com/sns/jscode2session'
+        params = {
+            "appid": appid,
+            "secret": appsecret,
+            "js_code": code,
+            "grant_type": "authorization_code"
+        }
+        response = request.get(url, params=params)
+        result = response.json()
+        if "openid" in result and "session_key" in result:
+            openid = result["openid"]
+            session_key = result["session_key"]
+            user, created = User.objects.get_or_create(openid=openid)
+            user.session_key = session_key
+            user.save()
+            return Response({"openid": openid}, status=status.HTTP_200_OK)
+        return Response({"error": "Fail to fetch openid", "details":result}, status=status.HTTP_400_BAD_REQUEST)
