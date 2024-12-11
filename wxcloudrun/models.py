@@ -38,3 +38,15 @@ class Comment(models.Model):
 
     def __str__(self):
         return f'Comment by openid:{self.author.openid} on post_id:{self.post.post_id}'
+
+class Like(models.Model):
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    comment = models.ForeignKey(Comment, related_name='likes', on_delete=models.CASCADE)
+    created_time = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        db_table='Like'
+        
+    def __str__(self):
+        return f'Comment by openid:{self.author.openid}'
+    
