@@ -1,8 +1,10 @@
-from rest_framework import generics, status
+from rest_framework import generics, status,viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import Post, Comment, User
-from .serializers import PostSerializer, CommentSerializer, UserSerializer, LoginSerializer
+from rest_framework.decorators import action
+
+from .models import Post, Comment, User,Like
+from .serializers import PostSerializer, CommentSerializer, UserSerializer, LoginSerializer, LikeSerializer
 from django.conf import settings
 
 class UserListCreateView(generics.ListCreateAPIView):
@@ -30,13 +32,24 @@ class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
 class CommentListCreateView(generics.ListCreateAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
+    
 
     def perform_create(self, serializer):
         serializer.save()
 
-class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
+class CommentDetailView(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
+    
+    @action(detail=True, methods=['post'])
+    def like(self, request, pk=None):
+        comment = self.get_object()
+        like, created = Like.objects.get_or_create(user=request.user, comment=comment)
+        if not created:
+            return Response({"detail": "You have already liked this comment."}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"detail": "Comment liked successfully."}, status=status.HTTP_201_CREATED)
+
+
 
 class LoginView(APIView):
     def post(self, request, *args, **kwargs):
