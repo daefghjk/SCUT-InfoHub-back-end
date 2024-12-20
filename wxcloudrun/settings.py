@@ -198,7 +198,7 @@ REST_FRAMEWORK = {
     ),
 }
 
-WeChat_Appid = os.environ.get("WeChat_Appid")
-WeChat_Appsecret = os.environ.get("WeChat_Appsecret")
+WECHAT_APPID = os.environ.get("WeChat_Appid")
+WECHAT_APPSECRET = os.environ.get("WeChat_Appsecret")
 
 AUTH_USER_MODEL = 'wxcloudrun.User'

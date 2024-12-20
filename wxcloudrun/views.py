@@ -9,6 +9,7 @@ from django.contrib.auth import login
 from .models import Post, Comment, User,Like,PostLike
 from .serializers import PostSerializer, CommentSerializer, UserSerializer, LoginSerializer, LikeSerializer
 from django.conf import settings
+import requests
 
 class UserListCreateView(generics.ListCreateAPIView):
     queryset = User.objects.all()
@@ -76,8 +77,8 @@ class LoginView(APIView):
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         code = serializer.validated_data['code']
-        appid = settings.WeChat_Appid
-        appsecret = settings.WeChat_Appsecret
+        appid = settings.WECHAT_APPID
+        appsecret = settings.WECHAT_APPSECRET
         url = 'https://api.weixin.qq.com/sns/jscode2session'
         params = {
             "appid": appid,
@@ -85,7 +86,7 @@ class LoginView(APIView):
             "js_code": code,
             "grant_type": "authorization_code"
         }
-        response = request.get(url, params=params)
+        response = requests.get(url, params=params)
         result = response.json()
         if "openid" in result and "session_key" in result:
             openid = result["openid"]
