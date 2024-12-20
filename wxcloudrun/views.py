@@ -4,8 +4,9 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound
 from rest_framework.permissions import IsAuthenticated
+from django.http import Http404
 from django.contrib.auth import login
-from .models import Post, Comment, User,Like
+from .models import Post, Comment, User,Like,PostLike
 from .serializers import PostSerializer, CommentSerializer, UserSerializer, LoginSerializer, LikeSerializer
 from django.conf import settings
 
@@ -33,6 +34,17 @@ class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticated]
+    
+    @action(detail=True, methods=['post'], url_path='like')
+    def like(self, request, pk=None):
+        try:
+            post_instance = self.get_object()
+            like, created = PostLike.objects.get_or_create(Post=post_instance, author=request.user)
+            if not created:
+                return Response({"detail": "You have already liked this post."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": "Post liked successfully."}, status=status.HTTP_201_CREATED)
+        except self.queryset.model.DoesNotExist.DoesNotExist:
+            raise NotFound("Post not found.")
 
 class CommentListCreateView(generics.ListCreateAPIView):
     queryset = Comment.objects.all()
@@ -55,7 +67,7 @@ class CommentDetailView(viewsets.ModelViewSet):
             if not created:
                 return Response({"detail": "You have already liked this comment."}, status=status.HTTP_400_BAD_REQUEST)
             return Response({"detail": "Comment liked successfully."}, status=status.HTTP_201_CREATED)
-        except Comment.DoesNotExist:
+        except Http404:
             raise NotFound("Comment not found.")
 
 class LoginView(APIView):

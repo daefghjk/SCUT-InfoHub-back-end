@@ -69,3 +69,14 @@ class Like(models.Model):
     def __str__(self):
         return f'Comment by openid:{self.author.openid}'
     
+class PostLike(models.Model):
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, related_name='likes', on_delete=models.CASCADE)
+    created_time = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        db_table='postlikes'
+        managed = True
+        
+    def __str__(self):
+        return f'Postlike by openid:{self.author.openid}'
