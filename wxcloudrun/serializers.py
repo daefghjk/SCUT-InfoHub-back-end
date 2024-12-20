@@ -26,6 +26,8 @@ class CommentSerializer(serializers.ModelSerializer):
     
 class LoginSerializer(serializers.ModelSerializer):
     code = serializers.CharField(allow_blank=False)
+    class Meta:
+        fields = ['code']
 
 class LikeSerializer(serializers.ModelSerializer):
     class Meta:
