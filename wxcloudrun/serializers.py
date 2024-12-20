@@ -24,7 +24,7 @@ class CommentSerializer(serializers.ModelSerializer):
     def get_likes_count(self, obj):
         return obj.likes.count()
     
-class LoginSerializer(serializers.ModelSerializer):
+class LoginSerializer(serializers.Serializer):
     code = serializers.CharField(allow_blank=False)
     class Meta:
         fields = ['code']
