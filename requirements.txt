@@ -6,5 +6,4 @@ tzdata
 sqlparse
 cryptography
 djangorestframework
-djangorestframework-simplejwt
 requests

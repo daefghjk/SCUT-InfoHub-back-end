@@ -77,6 +77,7 @@ class PostLike(models.Model):
     class Meta:
         db_table='postlikes'
         managed = True
+        unique_together = ('post', 'author')
         
     def __str__(self):
         return f'Postlike by openid:{self.author.openid}'

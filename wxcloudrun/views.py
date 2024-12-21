@@ -4,10 +4,11 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.pagination import PageNumberPagination
 from django.http import Http404
 from django.contrib.auth import login
 from .models import Post, Comment, User,CommentsLike,PostLike
-from .serializers import PostSerializer, CommentSerializer, UserSerializer, LoginSerializer, LikeSerializer
+from .serializers import PostSerializer, CommentSerializer, UserSerializer, LoginSerializer
 from django.conf import settings
 import requests
 
@@ -23,18 +24,22 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
 
-class PostListCreateView(generics.ListCreateAPIView):
-    queryset = Post.objects.all()
+class PostPagination(PageNumberPagination):
+    page_size = 5
+    page_size_query_description = 'page_size'
+    max_page_size = 100
+
+class PostViewSet(viewsets.ModelViewSet):
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = PostPagination
 
-    def perform_create(self, serializer):
-        serializer.save()
-
-class PostDetailView(viewsets.ModelViewSet):
-    queryset = Post.objects.all()
-    serializer_class = PostSerializer
-    permission_classes = [IsAuthenticated]
+    def get_queryset(self):
+        queryset = Post.objects.all().order_by('-create_time')
+        openid = self.request.data.get('openid', None)
+        if openid is not None:
+            queryset = queryset.filter(poster__openid=openid)
+        return queryset
     
     @action(detail=True, methods=['post'], url_path='like')
     def like(self, request, pk=None):
