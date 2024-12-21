@@ -86,7 +86,7 @@ class LoginView(APIView):
             "js_code": code,
             "grant_type": "authorization_code"
         }
-        response = requests.get(url, params=params)
+        response = requests.get(url, params=params, verify=False)
         result = response.json()
         if "openid" in result and "session_key" in result:
             openid = result["openid"]
