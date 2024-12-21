@@ -6,7 +6,7 @@ from rest_framework.exceptions import NotFound
 from rest_framework.permissions import IsAuthenticated
 from django.http import Http404
 from django.contrib.auth import login
-from .models import Post, Comment, User,Like,PostLike
+from .models import Post, Comment, User,CommentsLike,PostLike
 from .serializers import PostSerializer, CommentSerializer, UserSerializer, LoginSerializer, LikeSerializer
 from django.conf import settings
 import requests
@@ -31,7 +31,7 @@ class PostListCreateView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         serializer.save()
 
-class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
+class PostDetailView(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticated]
@@ -40,11 +40,11 @@ class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
     def like(self, request, pk=None):
         try:
             post_instance = self.get_object()
-            like, created = PostLike.objects.get_or_create(Post=post_instance, author=request.user)
+            like, created = PostLike.objects.get_or_create(post=post_instance, author=request.user)
             if not created:
                 return Response({"detail": "You have already liked this post."}, status=status.HTTP_400_BAD_REQUEST)
             return Response({"detail": "Post liked successfully."}, status=status.HTTP_201_CREATED)
-        except self.queryset.model.DoesNotExist.DoesNotExist:
+        except self.queryset.model.DoesNotExist:
             raise NotFound("Post not found.")
 
 class CommentListCreateView(generics.ListCreateAPIView):
@@ -64,7 +64,7 @@ class CommentDetailView(viewsets.ModelViewSet):
     def like(self, request, pk=None):
         try:
             comment = self.get_object()
-            like, created = Like.objects.get_or_create(comment=comment, author=request.user)
+            like, created = CommentsLike.objects.get_or_create(comment=comment, author=request.user)
             if not created:
                 return Response({"detail": "You have already liked this comment."}, status=status.HTTP_400_BAD_REQUEST)
             return Response({"detail": "Comment liked successfully."}, status=status.HTTP_201_CREATED)
