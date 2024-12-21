@@ -8,3 +8,4 @@ cryptography
 djangorestframework
 djangorestframework-simplejwt
 requests
+urllib3
