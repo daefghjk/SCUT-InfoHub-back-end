@@ -65,6 +65,7 @@ class CommentsLike(models.Model):
     class Meta:
         db_table='Commentslikes'
         managed = True
+        unique_together = ('comment', 'author')
         
     def __str__(self):
         return f'Comment by openid:{self.author.openid}'

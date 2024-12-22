@@ -7,6 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
 from django.http import Http404
 from django.contrib.auth import login
+from django.db.models import Count
 from .models import Post, Comment, User,CommentsLike,PostLike
 from .serializers import PostSerializer, CommentSerializer, UserSerializer, LoginSerializer
 from django.conf import settings
@@ -52,19 +53,23 @@ class PostViewSet(viewsets.ModelViewSet):
         except self.queryset.model.DoesNotExist:
             raise NotFound("Post not found.")
 
-class CommentListCreateView(generics.ListCreateAPIView):
-    queryset = Comment.objects.all()
+class CommentPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_description = 'page_size'
+    max_page_size = 100
+
+class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = CommentPagination
 
-    def perform_create(self, serializer):
-        serializer.save()
+    def get_queryset(self):
+        queryset = Comment.objects.all().annotate(likes_count=Count('likes')).order_by('-likes_count', '-create_time')
+        post_id = self.request.data.get('post_id', None)
+        if post_id is not None:
+            queryset = queryset.filter(post__post_id=post_id)
+        return queryset
 
-class CommentDetailView(viewsets.ModelViewSet):
-    queryset = Comment.objects.all()
-    serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticated]
-    
     @action(detail=True, methods=['post'], url_path='like')
     def like(self, request, pk=None):
         try:
