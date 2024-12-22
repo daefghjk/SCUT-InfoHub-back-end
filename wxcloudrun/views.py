@@ -17,6 +17,7 @@ from rest_framework.decorators import api_view, permission_classes
 class UserListCreateView(generics.ListCreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
         serializer.save()
