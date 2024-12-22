@@ -4,7 +4,8 @@ from .models import User
 
 class OpenIDAuthentication(BaseAuthentication):
     def authenticate(self, request):
-        openid = request.headers.get('Authorization')
+        openid = request.headers.get('X-WX-OPENID')
+        print(f"Received openid: {openid}") 
         if not openid:
             return None
 
