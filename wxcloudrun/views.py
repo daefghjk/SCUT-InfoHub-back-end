@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.pagination import PageNumberPagination
 from django.http import Http404
 from django.contrib.auth import login
@@ -16,7 +16,8 @@ import requests
 class UserListCreateView(generics.ListCreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
+    authentication_classes = []
+    permission_classes = [AllowAny]
 
     def perform_create(self, serializer):
         serializer.save()
@@ -25,6 +26,20 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
+
+class UserCheckView(APIView):
+    authentication_classes = []
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        openid = request.headers.get('X-WX-OPENID')
+        if not openid:
+            return Response({'error': 'X-WX-OPENID header is required'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            user = User.objects.get(openid=openid)
+            return Response({'detail':'User found'}, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({'error':'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
 class PostPagination(PageNumberPagination):
     page_size = 5

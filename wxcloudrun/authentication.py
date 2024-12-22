@@ -5,10 +5,8 @@ from .models import User
 class OpenIDAuthentication(BaseAuthentication):
     def authenticate(self, request):
         openid = request.headers.get('X-WX-OPENID')
-        print(f"Received openid: {openid}") 
         if not openid:
             return None
-
         try:
             user = User.objects.get(openid=openid)
         except User.DoesNotExist:
