@@ -196,6 +196,9 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'wxcloudrun.authentication.OpenIDAuthentication',
     ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
 }
 
 WECHAT_APPID = os.environ.get("WeChat_Appid")

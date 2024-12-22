@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.urls import path,include
-from .views import PostViewSet, CommentViewSet, UserListCreateView, UserDetailView, LoginView,FanCountView, FanListView,unfollow_user,follow_user
+from .views import PostViewSet, CommentViewSet, UserListCreateView, UserDetailView, LoginView,FanCountView, FanListView,unfollow_user,follow_user, UserCheckView
+
 from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
@@ -17,5 +18,6 @@ urlpatterns = [
     path('api/fans/follow/<int:user_id>/', follow_user, name='follow-user'),
     path('api/fans/unfollow/<int:user_id>/', unfollow_user, name='unfollow-user'),
     
+    path('users/check/', UserCheckView.as_view(), name='user-check'),
     path('', include(router.urls)),
 ]
