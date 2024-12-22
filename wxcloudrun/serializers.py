@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Post, Comment, User, PostLike
+from .models import Post, Comment, User, PostLike,Follower
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -32,3 +32,10 @@ class LoginSerializer(serializers.Serializer):
     code = serializers.CharField(allow_blank=False)
     class Meta:
         fields = ['code']
+
+class FollowerSerializer(serializers.ModelSerializer):
+    follower = UserSerializer()
+    
+    class Meta:
+        model = Follower
+        fields = ['follower']
