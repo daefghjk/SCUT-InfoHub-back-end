@@ -8,10 +8,11 @@ from rest_framework.pagination import PageNumberPagination
 from django.http import Http404
 from django.contrib.auth import login
 from django.db.models import Count
-from .models import Post, Comment, User,CommentsLike,PostLike
-from .serializers import PostSerializer, CommentSerializer, UserSerializer, LoginSerializer
+from .models import Post, Comment, User,CommentsLike,PostLike,Follower
+from .serializers import PostSerializer, CommentSerializer, UserSerializer, LoginSerializer,FollowerSerializer
 from django.conf import settings
 import requests
+from rest_framework.decorators import api_view, permission_classes
 
 class UserListCreateView(generics.ListCreateAPIView):
     queryset = User.objects.all()
@@ -110,3 +111,53 @@ class LoginView(APIView):
                 "openid": openid
             }, status=status.HTTP_200_OK)
         return Response({"error": "Fail to fetch openid", "details":result}, status=status.HTTP_400_BAD_REQUEST)
+
+class FanCountView(generics.RetrieveAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    lookup_field = 'name'
+    
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        fan_count = instance.followers.count()
+        return Response({'name': instance.name, 'fan_count': fan_count})
+
+class FanListView(generics.ListAPIView):
+    serializer_class = FollowerSerializer
+    
+    def get_queryset(self):
+        name = self.kwargs['name']
+        user = User.objects.get(name=name)
+        return Follower.objects.filter(user=user)
+#取关动作    
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def unfollow_user(request, user_id):
+    try:
+        follower = request.user
+        user = User.objects.get(openid=user_id)
+        follower_instance = Follower.objects.get(user=user, follower=follower)
+        follower_instance.delete()
+        return Response({'message': 'Unfollowed successfully'}, status=status.HTTP_200_OK)
+    except Follower.DoesNotExist:
+        return Response({'error': 'You are not following this user'}, status=status.HTTP_400_BAD_REQUEST)
+    except User.DoesNotExist:
+        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+#关注动作
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def follow_user(request, user_id):
+    try:
+        follower = request.user
+        user = User.objects.get(openid=user_id)
+        # Check if the user is already followed to avoid duplicate entries
+        if not Follower.objects.filter(user=user, follower=follower).exists():
+            Follower.objects.create(user=user, follower=follower)
+            return Response({'message': 'Followed successfully'}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({'error': 'You are already following this user'}, status=status.HTTP_400_BAD_REQUEST)
+    except User.DoesNotExist:
+        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    
