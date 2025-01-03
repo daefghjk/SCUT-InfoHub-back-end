@@ -14,19 +14,22 @@ from django.conf import settings
 import requests
 from rest_framework.decorators import api_view, permission_classes
 
-class UserListCreateView(generics.ListCreateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+class UserCreateView(APIView):
     authentication_classes = []
     permission_classes = [AllowAny]
 
-    def perform_create(self, serializer):
-        serializer.save()
-
-class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
+    def post(self, request):
+        openid = request.headers.get('X-WX-OPENID')
+        if not openid:
+            return Response({'error':'X-WX-OPENID header is required'}, status=status.HTTP_400_BAD_REQUEST)
+        data = request.data.copy()
+        data['openid'] = openid
+        serializer = UserSerializer(data=data)
+        if serializer.is_valid():
+            user = serializer.save()
+            return Response(UserSerializer(user).data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class UserCheckView(APIView):
     authentication_classes = []
@@ -38,9 +41,10 @@ class UserCheckView(APIView):
             return Response({'error': 'X-WX-OPENID header is required'}, status=status.HTTP_400_BAD_REQUEST)
         try:
             user = User.objects.get(openid=openid)
-            return Response({'detail':'User found'}, status=status.HTTP_200_OK)
+            user_data = UserSerializer(user).data
+            return Response(user_data, status=status.HTTP_200_OK)
         except User.DoesNotExist:
-            return Response({'error':'User not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error':'User not found', 'openid':openid}, status=status.HTTP_404_NOT_FOUND)
 
 class PostPagination(PageNumberPagination):
     page_size = 5

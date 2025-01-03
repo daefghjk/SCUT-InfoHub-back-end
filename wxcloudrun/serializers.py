@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import Post, Comment, User, PostLike,Follower
 
 class UserSerializer(serializers.ModelSerializer):
+    session_key = serializers.CharField(required=False)
     class Meta:
         model = User
         fields = ['openid', 'session_key', 'name', 'grade', 'major']
