@@ -8,7 +8,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['openid', 'session_key', 'name', 'grade', 'major']
 
 class PostSerializer(serializers.ModelSerializer):
-    poster = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    poster = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False)
     likes_count = serializers.SerializerMethodField()
 
     class Meta:

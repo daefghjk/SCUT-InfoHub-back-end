@@ -2,7 +2,7 @@ from rest_framework import generics, status,viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from rest_framework.exceptions import NotFound
+from rest_framework.exceptions import NotFound, ValidationError
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.pagination import PageNumberPagination
 from django.http import Http404
@@ -17,6 +17,16 @@ from rest_framework.decorators import api_view, permission_classes
 class UserUpdateView(APIView):
     authentication_classes = []
     permission_classes = [AllowAny]
+
+    def get(self, request):
+        openid = request.data.get('openid')
+        if not openid:
+            return Response({'error': 'openid data is required'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            user = User.objects.get(openid=openid)
+            return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({'error':'User not found', 'openid':openid}, status=status.HTTP_404_NOT_FOUND)
 
     def post(self, request):
         openid = request.headers.get('X-WX-OPENID')
@@ -71,6 +81,16 @@ class PostViewSet(viewsets.ModelViewSet):
         if openid is not None:
             queryset = queryset.filter(poster__openid=openid)
         return queryset
+    
+    def perform_create(self, serializer):
+        openid = self.request.headers.get('X-WX-OPENID')
+        if not openid:
+            raise ValidationError("OpenID header is missing")
+        try:
+            user = User.objects.get(openid=openid)
+        except User.DoesNotExist:
+            raise ValidationError("User with given OpenID not found")
+        serializer.save(poster=user)
     
     @action(detail=True, methods=['post'], url_path='like')
     def like(self, request, pk=None):

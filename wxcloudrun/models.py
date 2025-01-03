@@ -30,7 +30,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.openid
 
 class Post(models.Model):
-    post_id = models.IntegerField(primary_key=True)
+    post_id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=200)
     content = models.TextField()
     poster = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='posts', null=False, blank=False)
@@ -44,7 +44,7 @@ class Post(models.Model):
         return self.title
 
 class Comment(models.Model):
-    comment_id = models.IntegerField(primary_key=True)
+    comment_id = models.AutoField(primary_key=True)
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments', null=False, blank=False)
     content = models.TextField()
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='comments', null=False, blank=False)
