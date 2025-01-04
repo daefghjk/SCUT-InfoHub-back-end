@@ -16,6 +16,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     name = models.CharField(max_length=50)
     grade = models.CharField(max_length=50)
     major = models.CharField(max_length=50)
+    avatarurl = models.CharField(max_length=200)
 
     objects = UserManager()
 

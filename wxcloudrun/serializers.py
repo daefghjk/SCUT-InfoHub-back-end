@@ -5,18 +5,22 @@ class UserSerializer(serializers.ModelSerializer):
     session_key = serializers.CharField(required=False)
     class Meta:
         model = User
-        fields = ['openid', 'session_key', 'name', 'grade', 'major']
+        fields = ['openid', 'session_key', 'name', 'grade', 'major', 'avatarurl']
 
 class PostSerializer(serializers.ModelSerializer):
     poster = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False)
     likes_count = serializers.SerializerMethodField()
+    comments_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
-        fields = ['post_id', 'title', 'content', 'poster', 'create_time', 'likes_count']
+        fields = ['post_id', 'title', 'content', 'poster', 'create_time', 'likes_count', 'comments_count']
     
     def get_likes_count(self, obj):
         return PostLike.objects.filter(post=obj).count()
+
+    def get_comments_count(self, obj):
+        return Comment.objects.filter(post=obj).count()
 
 class CommentSerializer(serializers.ModelSerializer):
     post = serializers.PrimaryKeyRelatedField(queryset=Post.objects.all())
