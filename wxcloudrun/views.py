@@ -9,7 +9,7 @@ from django.http import Http404
 from django.contrib.auth import login
 from django.db.models import Count
 from .models import Post, Comment, User,CommentsLike,PostLike,Follower
-from .serializers import PostSerializer, CommentSerializer, UserSerializer, LoginSerializer,FollowerSerializer
+from .serializers import PostSerializer, CommentSerializer, UserSerializer, LoginSerializer, FollowerSerializer, IdolSerializer
 from django.conf import settings
 import requests
 from rest_framework.decorators import api_view, permission_classes
@@ -178,6 +178,18 @@ class FanListView(generics.ListAPIView):
         name = self.kwargs['name']
         user = User.objects.get(name=name)
         return Follower.objects.filter(user=user)
+
+class idolListView(generics.ListAPIView):
+    serializer_class = IdolSerializer
+
+    def get_queryset(self):
+        name = self.kwargs['name']
+        try:
+            user = User.objects.get(name=name)
+        except User.DoesNotExist:
+            raise NotFound(f'User not Found')
+        return Follower.objects.filter(follower=user).select_related('user')
+
 #取关动作    
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

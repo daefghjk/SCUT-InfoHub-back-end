@@ -44,3 +44,10 @@ class FollowerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Follower
         fields = ['follower']
+
+class IdolSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+
+    class Meta:
+        model = Follower
+        fields = ['user']

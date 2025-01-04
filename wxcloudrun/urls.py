@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path,include
-from .views import PostViewSet, CommentViewSet, UserUpdateView, LoginView, FanCountView, FanListView, unfollow_user, follow_user, UserCheckView
+from .views import PostViewSet, CommentViewSet, UserUpdateView, LoginView, FanCountView, FanListView, unfollow_user, follow_user, UserCheckView, idolListView
 
 from rest_framework.routers import DefaultRouter
 
@@ -15,6 +15,7 @@ urlpatterns = [
     path('login/', LoginView.as_view(), name='login'),
     path('<str:name>/fan-count/', FanCountView.as_view(), name='fan-count'),
     path('<str:name>/fans/', FanListView.as_view(), name='fan-list'),
+    path('<str:name>/idols/', idolListView.as_view(), name='idol-list'),
     path('api/fans/follow/<int:user_id>/', follow_user, name='follow-user'),
     path('api/fans/unfollow/<int:user_id>/', unfollow_user, name='unfollow-user'),
     path('', include(router.urls)),
