@@ -19,7 +19,7 @@ class UserUpdateView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
-        openid = request.data.get('openid')
+        openid = request.query_params.get('openid')
         if not openid:
             return Response({'error': 'openid data is required'}, status=status.HTTP_400_BAD_REQUEST)
         try:
@@ -77,7 +77,7 @@ class PostViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = Post.objects.all().order_by('-create_time')
-        openid = self.request.data.get('openid', None)
+        openid = self.request.query_params.get('openid', None)
         if openid is not None:
             queryset = queryset.filter(poster__openid=openid)
         return queryset
@@ -115,7 +115,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = Comment.objects.all().annotate(likes_count=Count('likes')).order_by('-likes_count', '-create_time')
-        post_id = self.request.data.get('post_id', None)
+        post_id = self.request.query_params.get('post_id', None)
         if post_id is not None:
             queryset = queryset.filter(post__post_id=post_id)
         return queryset
